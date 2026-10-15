@@ -1,0 +1,141 @@
+{{define "login"}}{{template "head" .}}
+<div class="authwrap">
+  <section class="showcase">
+    <div class="fan">
+      <img class="fan-card fc0" src="/static/samples/arceus-vstar.jpg" alt="">
+      <img class="fan-card fc1" src="/static/samples/mew-ex-fur.jpg" alt="">
+      <img class="fan-card fc2" src="/static/samples/pikachu-promo.jpg" alt="">
+    </div>
+    <h2>ยินดีต้อนรับกลับมา</h2>
+    <p class="lead">เข้าสู่ระบบเพื่อประมูลการ์ดในฝัน ลงขายการ์ดของคุณ และติดตามผลแบบเรียลไทม์</p>
+    <ul class="perks">
+      <li>🔨 ประมูลลุ้นกันถึงวินาทีสุดท้าย</li>
+      <li>🏪 ลงขายการ์ดเป็นร้านของคุณเอง</li>
+      <li>🛡️ ราคาและเวลาตัดสินที่เซิร์ฟเวอร์ โกงไม่ได้</li>
+    </ul>
+  </section>
+  <section class="authcard">
+    <p class="stamp">MEMBER LOGIN</p>
+    <h1>เข้าสู่ระบบ</h1>
+    {{template "errors" .}}
+    <form method="post" action="/login">
+      <input type="hidden" name="csrf" value="{{.CSRF}}">
+      <label>ชื่อผู้ใช้
+        <input name="login" value="{{.Form.login}}" required maxlength="60" autocomplete="username" placeholder="ชื่อผู้ใช้ของคุณ" autofocus>
+      </label>
+      <label>รหัสผ่าน
+        <input type="password" name="password" required maxlength="72" autocomplete="current-password" placeholder="รหัสผ่าน">
+      </label>
+      <button class="btn primary block big" type="submit">เข้าสู่ระบบ</button>
+    </form>
+    <p class="muted center">ยังไม่มีบัญชี? <a href="/register">สมัครสมาชิกฟรี</a></p>
+  </section>
+</div>
+{{template "foot" .}}{{end}}
+
+{{define "register"}}{{template "head" .}}
+<div class="authwrap">
+  <section class="showcase">
+    <div class="fan">
+      <img class="fan-card fc0" src="/static/samples/mega-lucario-ex.jpg" alt="">
+      <img class="fan-card fc1" src="/static/samples/mew-ex-rr.jpg" alt="">
+      <img class="fan-card fc2" src="/static/samples/arceus-vstar.jpg" alt="">
+    </div>
+    <h2>เริ่มสะสมกับ TCGnapaksoy</h2>
+    <p class="lead">สมัครง่าย ใช้แค่ชื่อผู้ใช้กับรหัสผ่าน ไม่ต้องใช้อีเมล</p>
+    <ul class="perks">
+      <li>🃏 เสนอราคาแข่งการ์ดที่ถูกใจ</li>
+      <li>📷 ลงรูปการ์ดและตั้งรูปโปรไฟล์ได้</li>
+      <li>🏆 ติดตามสถานะ นำอยู่ / ถูกแซง / ชนะ</li>
+    </ul>
+  </section>
+  <section class="authcard">
+    <p class="stamp">NEW MEMBER</p>
+    <h1>สมัครสมาชิก</h1>
+    {{template "errors" .}}
+    <form method="post" action="/register">
+      <input type="hidden" name="csrf" value="{{.CSRF}}">
+      <label>ชื่อผู้ใช้ (a-z, 0-9, _ ยาว 3-30 ตัว)
+        <input name="username" value="{{.Form.username}}" required minlength="3" maxlength="30" pattern="[A-Za-z0-9_]{3,30}" autocomplete="username" placeholder="เช่น napaksoy">
+      </label>
+      <label>รหัสผ่าน (อย่างน้อย 8 ตัว มีตัวอักษรและตัวเลข)
+        <input type="password" name="password" required minlength="8" maxlength="72" autocomplete="new-password">
+      </label>
+      <label>ยืนยันรหัสผ่าน
+        <input type="password" name="password2" required minlength="8" maxlength="72" autocomplete="new-password">
+      </label>
+      <button class="btn primary block big" type="submit">สมัครสมาชิก</button>
+    </form>
+    <p class="muted center">มีบัญชีอยู่แล้ว? <a href="/login">เข้าสู่ระบบ</a></p>
+  </section>
+</div>
+{{template "foot" .}}{{end}}
+
+{{define "error"}}{{template "head" .}}
+<h1>เกิดข้อผิดพลาด</h1>
+<div class="alert">{{.Data}}</div>
+<p><a class="btn" href="/">กลับหน้าแรก</a></p>
+{{template "foot" .}}{{end}}
+
+{{define "about"}}{{template "head" .}}
+<h1>เกี่ยวกับระบบและวิธีใช้</h1>
+
+<section class="card">
+  <h2>TCGnapaksoy คืออะไร</h2>
+  <p>TCGnapaksoy เป็นเว็บแอปตลาดประมูลการ์ดสะสม พัฒนาด้วยภาษา Go และฐานข้อมูล SQLite สมาชิกลงขายการ์ดของตัวเองเป็นการประมูล (พร้อมอัปโหลดรูปการ์ด) สมาชิกคนอื่นเสนอราคาแข่งกัน เมื่อหมดเวลา ผู้เสนอราคาสูงสุดคือผู้ชนะ ผู้ขายแต่ละคนมีหน้าร้านของตัวเอง และตั้งรูปโปรไฟล์ได้ ระบบเป็นโปรเจกต์เพื่อการศึกษา ไม่มีการชำระเงินจริง</p>
+</section>
+
+<section class="card">
+  <h2>กติกาการประมูล</h2>
+  <ul>
+    <li>ราคาเปิดเป็นราคาต่ำสุดของการ์ด และการเสนอราคาแต่ละครั้งต้องเพิ่มอย่างน้อยตาม "ขั้นต่ำ" ที่ผู้ขายกำหนด</li>
+    <li>ถ้ามีคนประมูลในช่วง 5 นาทีสุดท้าย ระบบขยายเวลาให้เป็น 5 นาทีนับจากการประมูลนั้น (กันการแย่งชิงในวินาทีสุดท้าย)</li>
+    <li>ผู้ขายประมูลการ์ดของตัวเองไม่ได้ และผู้นำราคาอยู่แล้วไม่ต้องประมูลซ้ำ</li>
+    <li>ชื่อผู้ประมูลถูกซ่อนบางส่วน (เช่น na***) ยกเว้นผู้ขายที่เห็นชื่อผู้ชนะ</li>
+    <li>เมื่อมีผู้ประมูลแล้ว ผู้ขายแก้ไขข้อมูล/เปลี่ยนรูป/ลบการ์ดไม่ได้ (กันสลับรูปหลอกคนที่เสนอราคาไปแล้ว)</li>
+  </ul>
+</section>
+
+<section class="card">
+  <h2>วิธีใช้งาน</h2>
+  <h3>ผู้ใช้ทั่วไป (role: user)</h3>
+  <ol>
+    <li>สมัครสมาชิกด้วยชื่อผู้ใช้และรหัสผ่าน (ไม่ต้องใช้อีเมล) ดูรายการประมูลได้โดยไม่ต้องล็อกอิน</li>
+    <li>เลือกการ์ด ดูรายละเอียดและประวัติการประมูล แล้วใส่ราคาในกล่องประมูล</li>
+    <li>ลงขายการ์ดที่เมนู "ลงขายการ์ด" กดเลือกรูปการ์ดจากเครื่อง (JPG/PNG/GIF ไม่เกิน 2MB) แก้ไขหรือเปลี่ยนรูปได้ตราบที่ยังไม่มีผู้ประมูล</li>
+    <li>เปลี่ยนรูปโปรไฟล์ที่เมนูชื่อของคุณมุมขวาบน การ์ดทั้งหมดที่คุณลงขายจะรวมอยู่ในหน้าร้านของคุณ</li>
+    <li>ติดตามสถานะ นำอยู่ / ถูกแซง / ชนะ ที่เมนู "ประมูลของฉัน"</li>
+  </ol>
+  <h3>ผู้ดูแลระบบ (role: admin)</h3>
+  <ol>
+    <li>เข้าสู่ระบบด้วยบัญชีแอดมิน แล้วเปิดเมนู "ผู้ดูแลระบบ"</li>
+    <li>ดูสถิติ ยกเลิกหรือลบการประมูลที่ไม่เหมาะสม จัดการสมาชิก (เปลี่ยนบทบาท/ลบ) และดูประวัติการประมูลทั้งหมด</li>
+  </ol>
+</section>
+
+<section class="card">
+  <h2>ฟีเจอร์ตามเกณฑ์ขั้นต่ำ</h2>
+  <ol>
+    <li><b>สมัครสมาชิกและเข้าสู่ระบบ</b>: เก็บรหัสผ่านด้วย <b>bcrypt (cost 12)</b> มี salt ในตัว ไม่เก็บรหัสผ่านจริง</li>
+    <li><b>สองบทบาท</b>: <code>user</code> (ลงขาย/ประมูล) และ <code>admin</code> (ดูแลทั้งระบบ) ตรวจสิทธิ์ฝั่งเซิร์ฟเวอร์ทุกคำขอ</li>
+    <li><b>CRUD ที่มีเจ้าของ</b>: "รายการประมูล" (รวมรูปการ์ด) ผู้ใช้ A แก้/ลบรายการของผู้ใช้ B ไม่ได้ เพราะ SQL ผูก <code>seller_id</code> จาก session</li>
+    <li><b>ฟอร์มที่บันทึกลงฐานข้อมูลและแสดงผลกลับ</b>: ฟอร์มลงขายการ์ด ฟอร์มเสนอราคา และฟอร์มเปลี่ยนรูปโปรไฟล์</li>
+    <li><b>หน้าผู้ดูแลระบบ</b>: <code>/admin</code> เข้าได้เฉพาะ admin (user ธรรมดาจะได้ 403)</li>
+  </ol>
+</section>
+
+<section class="card">
+  <h2>การป้องกันการโจมตี</h2>
+  <ul>
+    <li><b>SQL Injection</b>: ใช้ placeholder ทุกคำสั่ง SQL รวมถึงช่องค้นหา</li>
+    <li><b>XSS</b>: template escape อัตโนมัติ และ Content-Security-Policy ที่อนุญาตเฉพาะสคริปต์ของเราเอง</li>
+    <li><b>CSRF</b>: token ผูกกับ session ทุกฟอร์ม + Fetch Metadata + SameSite cookie</li>
+    <li><b>การอัปโหลดรูป</b>: จำกัดขนาด 2MB ตรวจชนิดไฟล์จากเนื้อไฟล์จริง (ไม่เชื่อนามสกุล) จำกัดความกว้างยาวกัน decompression bomb แล้ว decode และ encode เป็น JPEG ใหม่ทุกครั้ง (ลบ EXIF และข้อมูลแอบแฝง) เสิร์ฟด้วย id เท่านั้น ไม่ใช้ชื่อไฟล์จากผู้ใช้ จึงไม่มี path traversal และอัปโหลดได้เฉพาะผู้ที่ล็อกอินและเฉพาะเส้นทางที่กำหนด</li>
+    <li><b>IDOR / ยกระดับสิทธิ์</b>: ตรวจความเป็นเจ้าของใน SQL, ไม่รับ <code>role</code> หรือ <code>seller_id</code> จากฟอร์ม, เปลี่ยนได้แค่รูปโปรไฟล์ของตัวเอง</li>
+    <li><b>โกงการประมูล</b>: ตรวจกติกาทั้งหมดใน SQL คำสั่งเดียวแบบ atomic กันการกดพร้อมกัน ใช้เวลาของเซิร์ฟเวอร์ ไม่เชื่อนาฬิกาในเบราว์เซอร์ ราคาเป็นจำนวนเต็มบาท</li>
+    <li><b>Brute force</b>: rate limit ต่อ IP และล็อกบัญชี 15 นาทีเมื่อรหัสผิด 5 ครั้ง จำกัดความถี่การประมูลและการอัปโหลด</li>
+    <li><b>Session</b>: token สุ่ม เก็บเฉพาะ hash ในฐานข้อมูล, cookie HttpOnly/Secure/SameSite, หมุน session หลังล็อกอิน</li>
+    <li><b>อื่น ๆ</b>: security headers, ค่าที่เลือกได้ใช้ whitelist, timeout ของเซิร์ฟเวอร์, error ไม่เปิดเผยรายละเอียดภายใน</li>
+  </ul>
+</section>
+{{template "foot" .}}{{end}}

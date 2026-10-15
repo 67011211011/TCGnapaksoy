@@ -1,0 +1,85 @@
+{{define "admin"}}{{template "head" .}}
+<h1>ห้องควบคุมผู้ดูแลระบบ</h1>
+
+<div class="stats">
+  <div class="card stat"><b>{{.Data.NUsers}}</b><span>สมาชิก</span></div>
+  <div class="card stat"><b>{{.Data.NAuctions}}</b><span>รายการประมูล</span></div>
+  <div class="card stat"><b>{{.Data.NLive}}</b><span>กำลังประมูล</span></div>
+  <div class="card stat"><b>{{.Data.NBids}}</b><span>ครั้งที่ประมูล</span></div>
+</div>
+
+<h2 class="sec">🗂️ รายการประมูลทั้งหมด</h2>
+<div class="scroll">
+<table>
+  <thead><tr><th>ID</th><th>การ์ด</th><th>ผู้ขาย</th><th>ราคา</th><th>ประมูล</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+  <tbody>
+  {{range .Data.Auctions}}
+  <tr>
+    <td>{{.ID}}</td>
+    <td><a href="/auctions/{{.ID}}">{{.Title}}</a> <span class="muted">{{.Rarity}}</span></td>
+    <td>{{.Seller}}</td>
+    <td class="gold">{{baht .Price}}</td>
+    <td>{{.BidCount}}</td>
+    <td>{{if .Cancelled}}ยกเลิก{{else if .Live}}กำลังประมูล{{else}}ปิดแล้ว{{end}}</td>
+    <td>
+      {{if .Live}}
+      <form method="post" action="/admin/auctions/{{.ID}}/cancel" class="inline">
+        <input type="hidden" name="csrf" value="{{$.CSRF}}">
+        <button class="btn" type="submit">ยกเลิก</button>
+      </form>
+      {{end}}
+      <form method="post" action="/admin/auctions/{{.ID}}/delete" class="inline">
+        <input type="hidden" name="csrf" value="{{$.CSRF}}">
+        <button class="btn danger" type="submit">ลบ</button>
+      </form>
+    </td>
+  </tr>
+  {{end}}
+  </tbody>
+</table>
+</div>
+
+<h2 class="sec">👥 จัดการสมาชิก</h2>
+<div class="scroll">
+<table>
+  <thead><tr><th>ID</th><th>ชื่อผู้ใช้</th><th>บทบาท</th><th>สมัครเมื่อ</th><th>จัดการ</th></tr></thead>
+  <tbody>
+  {{range .Data.Users}}
+  <tr>
+    <td>{{.ID}}</td><td>{{.Username}}</td><td>{{.Role}}</td><td>{{date .CreatedAt}}</td>
+    <td>
+      {{if ne .ID $.User.ID}}
+      <form method="post" action="/admin/users/{{.ID}}/role" class="inline">
+        <input type="hidden" name="csrf" value="{{$.CSRF}}">
+        <select name="role">
+          <option value="user" {{if eq .Role "user"}}selected{{end}}>user</option>
+          <option value="admin" {{if eq .Role "admin"}}selected{{end}}>admin</option>
+        </select>
+        <button class="btn" type="submit">บันทึก</button>
+      </form>
+      <form method="post" action="/admin/users/{{.ID}}/delete" class="inline">
+        <input type="hidden" name="csrf" value="{{$.CSRF}}">
+        <button class="btn danger" type="submit">ลบสมาชิก</button>
+      </form>
+      {{else}}<span class="muted">(คุณ)</span>{{end}}
+    </td>
+  </tr>
+  {{end}}
+  </tbody>
+</table>
+</div>
+
+<h2 class="sec">💰 การประมูลล่าสุด</h2>
+{{if .Data.Bids}}
+<div class="scroll">
+<table>
+  <thead><tr><th>การ์ด</th><th>ผู้ประมูล</th><th>ราคา</th><th>เมื่อ</th></tr></thead>
+  <tbody>
+  {{range .Data.Bids}}
+  <tr><td><a href="/auctions/{{.AuctionID}}">{{.AuctionTitle}}</a></td><td>{{.Username}}</td><td class="gold">{{baht .Amount}}</td><td>{{date .CreatedAt}}</td></tr>
+  {{end}}
+  </tbody>
+</table>
+</div>
+{{else}}<p class="muted">ยังไม่มีการประมูล</p>{{end}}
+{{template "foot" .}}{{end}}

@@ -1,0 +1,55 @@
+{{define "head"}}<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.Title}} · TCGnapaksoy</title>
+<link rel="stylesheet" href="/static/style.css">
+<script src="/static/app.js" defer></script>
+</head>
+<body>
+<header class="nav">
+  <a class="brand" href="/">♛ TCGnapaksoy</a>
+  <nav>
+    <a href="/">หน้าแรก</a>
+  {{if .User}}
+    <a href="/sell">ลงขายการ์ด</a>
+    <a href="/me">ประมูลของฉัน</a>
+    {{if eq .User.Role "admin"}}<a href="/admin">ผู้ดูแลระบบ</a>{{end}}
+    <a href="/about">วิธีใช้</a>
+    <a class="me" href="/profile" title="โปรไฟล์ของฉัน">{{template "avatar" (av .User.ID .User.Username .User.AvatarVer)}}<span>{{.User.Username}}</span></a>
+    <form method="post" action="/logout" class="inline">
+      <input type="hidden" name="csrf" value="{{.CSRF}}">
+      <button class="link" type="submit">ออกจากระบบ</button>
+    </form>
+  {{else}}
+    <a href="/about">วิธีใช้</a>
+    <a href="/login">เข้าสู่ระบบ</a>
+    <a class="pill" href="/register">สมัครสมาชิก</a>
+  {{end}}
+  </nav>
+</header>
+<main>
+{{if .Flash}}<div class="flash">{{.Flash}}</div>{{end}}
+{{end}}
+
+{{define "foot"}}
+</main>
+<footer>
+  <p class="brand-foot">♛ TCGnapaksoy</p>
+  <p>ตลาดประมูลการ์ดสะสม · โปรเจกต์เพื่อการศึกษา ไม่มีการชำระเงินจริง</p>
+  <p class="tiny">ภาพการ์ดตัวอย่างเป็นลิขสิทธิ์ของเจ้าของลิขสิทธิ์ (©Pokémon / Nintendo / Creatures / GAME FREAK) ใช้เพื่อการศึกษาเท่านั้น ไม่แสวงหากำไร</p>
+</footer>
+</body>
+</html>
+{{end}}
+
+{{define "errors"}}
+{{if .Errors}}<div class="alert"><ul>{{range .Errors}}<li>{{.}}</li>{{end}}</ul></div>{{end}}
+{{end}}
+
+{{define "avatar"}}{{if .Ver}}<img class="avatar" src="/avatar/{{.ID}}?v={{.Ver}}" alt="">{{else}}<span class="avatar ph">{{initial .Name}}</span>{{end}}{{end}}
+
+{{define "card_art"}}{{if .HasImage}}<img class="cardimg" src="/img/card/{{.ID}}?v={{.ImgVer}}" alt="{{.Title}}" loading="lazy">{{else}}<div class="tcg r-{{.Rarity}}"><span class="tcg-rar">{{.Rarity}}</span><div class="tcg-emoji">{{.Emoji}}</div><div class="tcg-name">{{.Title}}</div></div>{{end}}{{end}}
+
+{{define "timer"}}{{if .Live}}<div class="timer" data-remaining="{{.Remaining}}"></div>{{else}}<div class="timer closed">{{if .Cancelled}}ยกเลิกแล้ว{{else}}ปิดประมูลแล้ว{{end}}</div>{{end}}{{end}}

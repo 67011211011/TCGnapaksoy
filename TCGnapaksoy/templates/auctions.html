@@ -1,0 +1,309 @@
+{{define "home"}}{{template "head" .}}
+<section class="hero">
+  <div class="hero-text">
+    <p class="stamp">LIVE AUCTION</p>
+    <h1>TCG<span class="gold">napaksoy</span></h1>
+    <p class="lead">ตลาดประมูลการ์ดสะสม เสนอราคา ลุ้นกันถึงวินาทีสุดท้าย แล้วคว้าการ์ดที่ใช่กลับบ้าน</p>
+    <form method="get" action="/" class="search">
+      <input name="q" value="{{.Data.Q}}" placeholder="ค้นหาชื่อการ์ด เช่น มิว, พิคาชู" maxlength="50" aria-label="ค้นหาชื่อการ์ด">
+      <button class="btn primary" type="submit">ค้นหา</button>
+    </form>
+  </div>
+  <div class="fan">
+    {{if .Data.Featured}}
+      {{range $i, $f := .Data.Featured}}<a class="fan-card fc{{$i}}" href="/auctions/{{$f.ID}}"><img src="/img/card/{{$f.ID}}?v={{$f.ImgVer}}" alt="{{$f.Title}}"></a>{{end}}
+    {{else}}
+      <img class="fan-card fc0" src="/static/samples/arceus-vstar.jpg" alt="">
+      <img class="fan-card fc1" src="/static/samples/mew-ex-fur.jpg" alt="">
+      <img class="fan-card fc2" src="/static/samples/pikachu-promo.jpg" alt="">
+    {{end}}
+  </div>
+</section>
+
+<div class="rowhead"><h2 class="sec">กำลังประมูล 🔥</h2><a class="btn" href="/sell">+ ลงขายการ์ดของคุณ</a></div>
+<div class="grid">
+{{range .Data.Auctions}}
+  <a class="acard" href="/auctions/{{.ID}}">
+    <div class="acard-art">
+      {{template "card_art" .}}
+      <span class="chip">{{.Rarity}}</span>
+    </div>
+    <div class="acard-body">
+      <h3>{{.Title}}</h3>
+      <p class="meta">{{.Game}}{{if .SetCode}} · {{.SetCode}}{{end}} · {{.Condition}}</p>
+      <p class="price-label">{{if .BidCount}}ราคาปัจจุบัน ({{.BidCount}} ประมูล){{else}}ราคาเปิด{{end}}</p>
+      <p class="price">{{baht .Price}}</p>
+      {{template "timer" .}}
+    </div>
+  </a>
+{{else}}
+  <p class="muted">{{if .Data.Q}}ไม่พบการ์ดที่ตรงกับคำค้นหา{{else}}ยังไม่มีการ์ดที่กำลังประมูล{{end}}</p>
+{{end}}
+</div>
+
+{{if .Data.Shops}}
+<div class="rowhead"><h2 class="sec">🏪 ร้านค้าแนะนำ</h2></div>
+<div class="shops">
+{{range .Data.Shops}}
+  <a class="shopcard card" href="/shop/{{.ID}}">
+    <div class="avwrap big">{{template "avatar" (av .ID .Name .AvatarVer)}}</div>
+    <h3>{{.Name}}</h3>
+    <p class="muted">กำลังประมูล {{.Live}} ใบ</p>
+    <span class="btn primary block">เข้าร้าน</span>
+  </a>
+{{end}}
+</div>
+{{end}}
+{{template "foot" .}}{{end}}
+
+{{define "shop"}}{{template "head" .}}
+<p><a href="/">← กลับหน้าแรก</a></p>
+<section class="shophead card">
+  <div class="avwrap big">{{template "avatar" (av .Data.Shop.ID .Data.Shop.Username .Data.Shop.AvatarVer)}}</div>
+  <div>
+    <h1>{{.Data.Shop.Username}}</h1>
+    <p class="muted">เป็นสมาชิกตั้งแต่ {{date .Data.Shop.CreatedAt}} · การ์ดที่กำลังประมูล {{len .Data.Auctions}} ใบ</p>
+  </div>
+</section>
+<div class="grid">
+{{range .Data.Auctions}}
+  <a class="acard" href="/auctions/{{.ID}}">
+    <div class="acard-art">{{template "card_art" .}}<span class="chip">{{.Rarity}}</span></div>
+    <div class="acard-body">
+      <h3>{{.Title}}</h3>
+      <p class="meta">{{.Game}}{{if .SetCode}} · {{.SetCode}}{{end}} · {{.Condition}}</p>
+      <p class="price-label">{{if .BidCount}}ราคาปัจจุบัน{{else}}ราคาเปิด{{end}}</p>
+      <p class="price">{{baht .Price}}</p>
+      {{template "timer" .}}
+    </div>
+  </a>
+{{else}}
+  <p class="muted">ร้านนี้ยังไม่มีการ์ดที่กำลังประมูล</p>
+{{end}}
+</div>
+{{template "foot" .}}{{end}}
+
+{{define "auction"}}{{template "head" .}}
+<p><a href="/">← กลับหน้าแรก</a></p>
+{{template "errors" .}}
+<h1>{{.Data.Auction.Title}}</h1>
+<div class="detail">
+  <div class="detail-art card">{{template "card_art" .Data.Auction}}</div>
+
+  <div class="card detail-info">
+    <dl>
+      <dt>ชื่อ</dt><dd>{{.Data.Auction.Title}}</dd>
+      <dt>หมวดหมู่</dt><dd>{{.Data.Auction.Game}}</dd>
+      <dt>รหัสการ์ด</dt><dd>{{if .Data.Auction.SetCode}}{{.Data.Auction.SetCode}}{{else}}-{{end}}</dd>
+      <dt>ระดับ</dt><dd><span class="chip inline">{{.Data.Auction.Rarity}}</span></dd>
+      <dt>สภาพ</dt><dd>{{cond .Data.Auction.Condition}}</dd>
+      <dt>ขายโดย</dt>
+      <dd><a class="sellerlink" href="/shop/{{.Data.Auction.SellerID}}"><span class="avwrap">{{template "avatar" (av .Data.Auction.SellerID .Data.Auction.Seller .Data.Auction.SellerAvatarVer)}}</span>{{.Data.Auction.Seller}}</a></dd>
+      <dt>รายละเอียด</dt><dd class="body">{{if .Data.Auction.Description}}{{.Data.Auction.Description}}{{else}}-{{end}}</dd>
+    </dl>
+  </div>
+
+  <aside class="card bidbox">
+    <p class="muted">ราคาปัจจุบัน</p>
+    {{if .Data.Auction.BidCount}}
+      <p class="bigprice">{{baht .Data.Auction.CurrentBid}}</p>
+    {{else}}
+      <p class="bigprice small">ยังไม่มีผู้เข้าร่วมการประมูล</p>
+      <p class="muted">ราคาเปิด {{baht .Data.Auction.StartPrice}}</p>
+    {{end}}
+    {{template "timer" .Data.Auction}}
+    <p class="rule">ประมูลเพิ่มขั้นต่ำครั้งละ {{baht .Data.Auction.MinIncrement}} · ขยายเวลา 5 นาทีนับจากการประมูลในช่วง 5 นาทีสุดท้าย · {{.Data.Auction.BidCount}} ประมูล</p>
+
+    {{if .Data.Auction.Cancelled}}
+      <p class="alert">การประมูลนี้ถูกยกเลิกโดยผู้ดูแลระบบ</p>
+    {{else if .Data.Auction.Ended}}
+      {{if .Data.Auction.BidCount}}
+        <p class="ok">🏆 ผู้ชนะ: <b>{{if .Data.IsSeller}}{{.Data.Auction.Leader}}{{else if .Data.Leading}}คุณ{{else}}{{mask .Data.Auction.Leader}}{{end}}</b> ด้วยราคา {{baht .Data.Auction.CurrentBid}}</p>
+      {{else}}
+        <p class="muted">ปิดประมูลโดยไม่มีผู้เสนอราคา</p>
+      {{end}}
+    {{else if not .User}}
+      <a class="btn primary block big" href="/login">เข้าสู่ระบบเพื่อประมูล</a>
+    {{else if .Data.IsSeller}}
+      <p class="muted">นี่คือการ์ดของคุณ ประมูลเองไม่ได้</p>
+      {{if .Data.CanEdit}}
+      <div class="actions">
+        <a class="btn" href="/auctions/{{.Data.Auction.ID}}/edit">แก้ไข / เปลี่ยนรูป</a>
+        <form method="post" action="/auctions/{{.Data.Auction.ID}}/delete" class="inline">
+          <input type="hidden" name="csrf" value="{{.CSRF}}">
+          <button class="btn danger" type="submit">ลบ</button>
+        </form>
+      </div>
+      {{else}}
+      <p class="muted">แก้ไข/ลบไม่ได้แล้ว เพราะมีผู้ประมูลแล้ว</p>
+      {{end}}
+    {{else if .Data.Leading}}
+      <p class="ok">🏆 คุณเป็นผู้ประมูลสูงสุดอยู่ตอนนี้</p>
+    {{else}}
+      <form method="post" action="/auctions/{{.Data.Auction.ID}}/bid">
+        <input type="hidden" name="csrf" value="{{.CSRF}}">
+        <label>ใส่ราคาประมูลของคุณ (ขั้นต่ำ {{baht .Data.MinBid}})
+          <input type="number" name="amount" min="{{.Data.MinBid}}" max="10000000" step="1" required
+            value="{{if .Form.amount}}{{.Form.amount}}{{else}}{{.Data.MinBid}}{{end}}">
+        </label>
+        <button class="btn primary block big" type="submit">ประมูล</button>
+      </form>
+    {{end}}
+  </aside>
+</div>
+
+<h2 class="sec">ประวัติการประมูล</h2>
+{{if .Data.Bids}}
+<div class="scroll">
+<table>
+  <thead><tr><th>ผู้ร่วมประมูล</th><th>ราคาที่ประมูล</th><th>วัน/เวลา</th></tr></thead>
+  <tbody>
+  {{range .Data.Bids}}
+    <tr>
+      <td>{{if and $.User (eq .UserID $.User.ID)}}คุณ{{else}}{{mask .Username}}{{end}}</td>
+      <td class="gold">{{baht .Amount}}</td>
+      <td>{{date .CreatedAt}}</td>
+    </tr>
+  {{end}}
+  </tbody>
+</table>
+</div>
+{{else}}
+<p class="muted">ยังไม่มีผู้ร่วมประมูล</p>
+{{end}}
+{{template "foot" .}}{{end}}
+
+{{define "auction_form"}}{{template "head" .}}
+<h1>{{.Data.Heading}}</h1>
+{{template "errors" .}}
+<form method="post" action="{{.Data.Action}}" enctype="multipart/form-data" class="card formcard">
+  <input type="hidden" name="csrf" value="{{.CSRF}}">
+
+  <label class="drop">
+    <span class="drop-title">รูปการ์ด</span>
+    <span class="dropbox">
+      {{if .Data.CurrentImage}}<img class="pv" src="{{.Data.CurrentImage}}" alt="รูปการ์ด">{{else}}<img class="pv empty" alt="รูปการ์ด">{{end}}
+      <span class="drop-hint">📷 กดเพื่อเลือกรูปการ์ดจากเครื่องของคุณ<br><small>JPG / PNG / GIF ไม่เกิน 2MB{{if .Data.CurrentImage}} · เลือกใหม่เพื่อเปลี่ยนรูป{{end}}</small></span>
+    </span>
+    <input type="file" name="image" accept="image/png,image/jpeg,image/gif" data-preview>
+  </label>
+
+  <label>ชื่อการ์ด
+    <input name="title" value="{{.Form.title}}" required maxlength="80" placeholder="เช่น มิว ex">
+  </label>
+  <div class="two">
+    <label>หมวดหมู่
+      <select name="game">{{range .Data.Games}}<option value="{{.}}" {{if eq . $.Form.game}}selected{{end}}>{{.}}</option>{{end}}</select>
+    </label>
+    <label>รหัสชุด / รหัสการ์ด
+      <input name="set_code" value="{{.Form.set_code}}" maxlength="30" placeholder="เช่น MA6 166/130">
+    </label>
+  </div>
+  <div class="two">
+    <label>ระดับความหายาก
+      <select name="rarity">{{range .Data.Rarities}}<option value="{{.}}" {{if eq . $.Form.rarity}}selected{{end}}>{{.}}</option>{{end}}</select>
+    </label>
+    <label>สภาพการ์ด
+      <select name="condition">{{range .Data.Conditions}}<option value="{{.}}" {{if eq . $.Form.condition}}selected{{end}}>{{cond .}}</option>{{end}}</select>
+    </label>
+  </div>
+  <label>ไอคอนการ์ด (แสดงเมื่อไม่ได้ใส่รูป)
+    <select name="emoji">{{range .Data.Emojis}}<option value="{{.}}" {{if eq . $.Form.emoji}}selected{{end}}>{{.}}</option>{{end}}</select>
+  </label>
+  <div class="two">
+    <label>ราคาเปิด (บาท)
+      <input type="number" name="start_price" value="{{.Form.start_price}}" min="1" max="1000000" step="1" required>
+    </label>
+    <label>ประมูลเพิ่มขั้นต่ำ (บาท)
+      <input type="number" name="min_increment" value="{{.Form.min_increment}}" min="1" max="100000" step="1" required>
+    </label>
+  </div>
+  {{if .Data.ShowDuration}}
+  <label>ระยะเวลาประมูล
+    <select name="duration">{{range .Data.Durations}}<option value="{{.Minutes}}" {{if eq (printf "%d" .Minutes) $.Form.duration}}selected{{end}}>{{.Label}}</option>{{end}}</select>
+  </label>
+  {{end}}
+  <label>รายละเอียด
+    <textarea name="description" rows="4" maxlength="800">{{.Form.description}}</textarea>
+  </label>
+  <button class="btn primary big" type="submit">บันทึก</button>
+  <a class="btn big" href="{{.Data.CancelURL}}">ยกเลิก</a>
+</form>
+{{template "foot" .}}{{end}}
+
+{{define "me"}}{{template "head" .}}
+<h1>ประมูลของฉัน</h1>
+
+<div class="rowhead"><h2 class="sec">การ์ดที่ฉันลงขาย</h2><a class="btn primary" href="/sell">+ ลงขายการ์ด</a></div>
+{{range .Data.Selling}}
+<article class="card row">
+  <div class="mini">{{template "card_art" .}}</div>
+  <div class="grow">
+    <h3><a href="/auctions/{{.ID}}">{{.Title}}</a></h3>
+    <p class="meta">{{.BidCount}} ประมูล · ราคา {{baht .Price}}</p>
+    {{template "timer" .}}
+    {{if and .Live (eq .BidCount 0)}}
+    <div class="actions">
+      <a class="btn" href="/auctions/{{.ID}}/edit">แก้ไข / เปลี่ยนรูป</a>
+      <form method="post" action="/auctions/{{.ID}}/delete" class="inline">
+        <input type="hidden" name="csrf" value="{{$.CSRF}}">
+        <button class="btn danger" type="submit">ลบ</button>
+      </form>
+    </div>
+    {{end}}
+  </div>
+</article>
+{{else}}<p class="muted">คุณยังไม่ได้ลงขายการ์ด</p>{{end}}
+
+<h2 class="sec">การ์ดที่ฉันประมูล</h2>
+{{range .Data.Bidding}}
+<article class="card row">
+  <div class="mini">{{template "card_art" .}}</div>
+  <div class="grow">
+    <h3><a href="/auctions/{{.ID}}">{{.Title}}</a></h3>
+    <p class="meta">ราคาปัจจุบัน {{baht .Price}}</p>
+    {{template "timer" .}}
+    <p>
+    {{if .Cancelled}}<span class="badge">ยกเลิก</span>
+    {{else if .Ended}}{{if eq .HighestBidderID $.User.ID}}<span class="badge win">🏆 คุณชนะ</span>{{else}}<span class="badge lose">ไม่ชนะ</span>{{end}}
+    {{else}}{{if eq .HighestBidderID $.User.ID}}<span class="badge win">นำอยู่</span>{{else}}<span class="badge lose">ถูกแซง</span>{{end}}
+    {{end}}
+    </p>
+  </div>
+</article>
+{{else}}<p class="muted">คุณยังไม่ได้ประมูลการ์ดใบไหน</p>{{end}}
+{{template "foot" .}}{{end}}
+
+{{define "profile"}}{{template "head" .}}
+<h1>โปรไฟล์ของฉัน</h1>
+{{template "errors" .}}
+<section class="card profile">
+  <div class="avwrap xl">{{template "avatar" (av .User.ID .User.Username .User.AvatarVer)}}</div>
+  <div class="grow">
+    <h2>{{.User.Username}}</h2>
+    <p class="muted">บทบาท: {{.User.Role}} · เป็นสมาชิกตั้งแต่ {{date .User.CreatedAt}}</p>
+    <p>ลงขายแล้ว <b class="gold">{{.Data.NListings}}</b> ใบ · ประมูลแล้ว <b class="gold">{{.Data.NBids}}</b> ครั้ง</p>
+    <p><a class="btn" href="/shop/{{.User.ID}}">ดูหน้าร้านของฉัน</a> <a class="btn" href="/me">ประมูลของฉัน</a></p>
+  </div>
+</section>
+
+<form method="post" action="/profile/avatar" enctype="multipart/form-data" class="card formcard">
+  <input type="hidden" name="csrf" value="{{.CSRF}}">
+  <label class="drop">
+    <span class="drop-title">เปลี่ยนรูปโปรไฟล์</span>
+    <span class="dropbox round">
+      <img class="pv empty" alt="ตัวอย่างรูปโปรไฟล์">
+      <span class="drop-hint">📷 กดเพื่อเลือกรูปโปรไฟล์<br><small>JPG / PNG / GIF ไม่เกิน 2MB · ระบบจะครอปเป็นสี่เหลี่ยมจัตุรัสให้</small></span>
+    </span>
+    <input type="file" name="avatar" accept="image/png,image/jpeg,image/gif" data-preview required>
+  </label>
+  <button class="btn primary big" type="submit">บันทึกรูปโปรไฟล์</button>
+</form>
+
+{{if .User.AvatarVer}}
+<form method="post" action="/profile/avatar/delete" class="inline">
+  <input type="hidden" name="csrf" value="{{.CSRF}}">
+  <button class="btn danger" type="submit">ลบรูปโปรไฟล์</button>
+</form>
+{{end}}
+{{template "foot" .}}{{end}}
